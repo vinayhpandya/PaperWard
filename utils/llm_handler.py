@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import logging
 from openai import OpenAI
 from dataclasses import dataclass, field
 from typing import Literal, TypedDict, Union
@@ -100,7 +101,7 @@ class LLMHandler:
                     **kwargs
                     )
             except Exception as err:
-                print(f'OPENAI ERROR: {err}')
+                logging.error(f'OPENAI ERROR: {err}')
                 raise err
 
             content = response.choices[0].message.content

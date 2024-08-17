@@ -1,5 +1,4 @@
-from typing import List, Union, OrderedDict
-from dataclasses import dataclass
+from typing import List, OrderedDict
 from retrying import retry
 import json
 import asyncio
@@ -49,7 +48,7 @@ def question_format(questions: List[BaseQuestion]) -> str:
 
 @retry(stop_max_attempt_number=3)
 def single_analysis(result: BaseSearchResult, questions: List[BaseQuestion]) -> BaseAnalysis:
-    logging.info(f"Analyzing {result.title}")
+    # logging.info(f"Analyzing {result.title}")
     question_str = question_format(questions)
     prompt = PROMPT.replace('{questions}', question_str)\
                     .replace('{title}', result.title)\
@@ -67,7 +66,7 @@ def single_analysis(result: BaseSearchResult, questions: List[BaseQuestion]) -> 
         question_dict[question] = answer
         total_score += answer.relation
         
-    logging.info(f"Analysis of {result.title} completed")
+    # logging.info(f"Analysis of {result.title} completed")
     return BaseAnalysis(response["chs_title"],
                         response["chs_summary"],
                         question_dict,
