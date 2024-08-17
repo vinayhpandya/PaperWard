@@ -1,0 +1,12 @@
+name: LLM games
+
+queries:
+- content: LLM games
+  max result: 10 
+- content: LLM game
+
+questions:
+- content: "How does the paper use LLMs to design the policy in computer games?"
+  answer type: "string"
+- content: "How does the paper use LLMs to create computer games?"
+  answer type: "string"

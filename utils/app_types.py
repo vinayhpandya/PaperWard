@@ -26,6 +26,18 @@ class BaseQuestion:
     
     def __hash__(self) -> int:
         return hash(self.question)
+    
+@dataclass
+class BaseQuery:
+    query: str
+    max_results: int = 10
+
+@dataclass
+class BaseConfigUnit:
+    name: str
+    queries: List[BaseQuery]
+    questions: List[BaseQuestion]
+    read_full_text: bool = False
 
 @dataclass
 class BaseAnswer:
