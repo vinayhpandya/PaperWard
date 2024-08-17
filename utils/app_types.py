@@ -65,6 +65,7 @@ class BaseAnalysis:
     """
     Analysis of a single paper with multiple questions and answers   
     """
+    entry_id: str
     chs_title: str
     chs_summary: str
     qa: OrderedDict[BaseQuestion, BaseAnswer]
@@ -90,5 +91,5 @@ class DatabaseItem:
     document: BaseSearchResult
     analysis: BaseAnalysis
     read: bool = False
-    score: int = 0
+    star: bool = False
 

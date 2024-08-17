@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(187, 187, 187);
+}
+
+main {
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 20px;
+}
+
+/* give section element a card-like appearance */
+section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+}
+
+
+.question {
+    font-size: 1.2em;
+}
+.totalScore {
+    background-color: chocolate;
+    color: white;
+    padding: 5px 10px 5px 10px;
+    border-radius: 5px;
+}
+.relation {
+    background-color: rgb(187, 187, 187);
+    color: white;
+    padding: 5px 5px 5px 5px;
+    border-radius: 5px;
+    font-size: small;
+    margin-right: 5px;
+}
+.score0 {
+    color: rgb(185, 185, 185);
+}

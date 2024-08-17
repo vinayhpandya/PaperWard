@@ -46,7 +46,7 @@ def question_format(questions: List[BaseQuestion]) -> str:
         })
     return json.dumps(question_list)
 
-@retry(stop_max_attempt_number=3)
+@retry(stop_max_attempt_number=5)
 def single_analysis(result: BaseSearchResult, questions: List[BaseQuestion]) -> BaseAnalysis:
     # logging.info(f"Analyzing {result.title}")
     question_str = question_format(questions)
@@ -67,10 +67,12 @@ def single_analysis(result: BaseSearchResult, questions: List[BaseQuestion]) -> 
         total_score += answer.relation
         
     # logging.info(f"Analysis of {result.title} completed")
-    return BaseAnalysis(response["chs_title"],
-                        response["chs_summary"],
-                        question_dict,
-                        total_score)
+    return BaseAnalysis(
+        result.entry_id,
+        response["chs_title"],
+        response["chs_summary"],
+        question_dict,
+        total_score)
 
 async def single_analysis_wrapper(result: BaseSearchResult, questions: List[BaseQuestion]) -> BaseAnalysis:
     return await asyncio.to_thread(single_analysis, result, questions)
