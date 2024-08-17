@@ -16,9 +16,13 @@ def main():
 
     # TODO: compare the search results with the database to avoid duplicate analysis
 
-    # TODO: avoid breaking the rpm limit of the API
     # use LLMs to answer the questions in the search results
-    analyse_results = asyncio.run(batch_analysis(search_results, questions))
+    # avoid breaking the rpm limit of the API
+    rpm_limit = 10
+    analyse_results = []
+    for i in range(0, len(search_results), rpm_limit):
+        analyse_batch = asyncio.run(batch_analysis(search_results[i:i+rpm_limit], questions))
+        analyse_results.extend(analyse_batch)
     
     # TODO: store the analysis results in the database
     for analysis in analyse_results:
