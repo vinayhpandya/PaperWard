@@ -3,3 +3,4 @@
 ref/
 llm_logs/
 .env
+.idea/
