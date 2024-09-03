@@ -4,6 +4,7 @@ from analysis.rank_results import rank_results
 from configs.read_yaml import load_config
 from utils.app_types import DatabaseItem
 from visualization.write_html import write_html
+from storage.database import add_arxiv
 import asyncio
 
 
@@ -29,8 +30,9 @@ def main(yaml_path: str = "configs/example_config.yaml",
 
     # weave the analysis results with the search results
     database_items = [DatabaseItem(search_result, analysis) for search_result, analysis in zip(search_results, analyse_results)]
-    
-    # TODO: store the analysis results in the database
+
+    for i in database_items:
+        add_arxiv(i)
 
     # rank the analysis results
     ranked_results = rank_results(database_items)

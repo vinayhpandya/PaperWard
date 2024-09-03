@@ -1,3 +1,6 @@
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import MappedAsDataclass
+from sqlalchemy import String
 from typing import List, Union, OrderedDict, Literal
 from dataclasses import dataclass
 from datetime import datetime
@@ -92,4 +95,22 @@ class DatabaseItem:
     analysis: BaseAnalysis
     read: bool = False
     star: bool = False
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Arixv(MappedAsDataclass, Base):
+    __tablename__ = 'arxiv'
+
+    arxiv_id: Mapped[str] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(500))
+    summary: Mapped[str] = mapped_column(String(10_000))
+    update_time: Mapped[str] = mapped_column(String(50))
+    chs_title: Mapped[str] = mapped_column(String(500))
+    chs_summary: Mapped[str] = mapped_column(String(10_000))
+
+    def __repr__(self):
+        return f"<Arxiv(id={self.arxiv_id}, title='{self.title}', summary='{self.summary}, update_time='{self.update_time}, chs_title='{self.chs_title}, chs_summary='{self.chs_summary},')>"
 
