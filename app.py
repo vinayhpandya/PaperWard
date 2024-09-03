@@ -13,6 +13,7 @@ def main(yaml_path: str = "configs/example_config.yaml",
          rpm_limit: int = 10):
     # TODO: enable multiple configs
     config = load_config(yaml_path)
+    logging.info(f"config loaded from {yaml_path}")
     
     # search related papers
     search_results = get_fusion_search_results(config.queries)

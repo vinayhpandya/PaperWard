@@ -56,7 +56,12 @@ def single_analysis(result: BaseSearchResult, questions: List[BaseQuestion]) -> 
     llm_handler = LLMHandler()
     response = llm_handler.chat_with_gpt(prompt)
     json_text = re.findall(r'```json(.*)```', response, re.DOTALL)[-1]
-    response = json.loads(json_text)
+    try:
+        # use utf-8 to avoid decoding errors
+        response = json.loads(json_text.encode('utf-8')) 
+    except json.JSONDecodeError as e:
+        logging.error(f"Failed to decode JSON: {json_text} \n {e}")
+        raise ValueError(f"Failed to decode JSON: {json_text}")
 
     question_dict = OrderedDict()
     total_score = 0
