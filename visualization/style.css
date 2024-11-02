@@ -28,7 +28,7 @@ section {
     font-size: 1.2em;
 }
 .totalScore {
-    background-color: chocolate;
+    background-color: rgb(20, 90, 139);
     color: white;
     padding: 5px 10px 5px 10px;
     border-radius: 5px;
