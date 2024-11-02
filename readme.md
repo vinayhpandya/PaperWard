@@ -41,7 +41,15 @@ This project runs well on Python 3.12 on Windows. We have not tested it on other
 pip install arxiv requests lxml openai retrying PyYAML SQLAlchemy
 ```
 
-You need to get an OpenAI API key to use PaperWard. You can sign up for an API key at https://platform.openai.com/signup.
+You need to get an OpenAI API key to use PaperWard. You can sign up for an API key at https://platform.openai.com/signup. Once you have the key, you can set it as an environment variable `OPENAI_API_KEY`.
+
+```bash
+export OPENAI_API_KEY=<your_openai_api_key>
+```
+
+PaperWard uses `gpt-4o` as the default LLM model. You can change it by modifying the source code in `utils/llm_handler.py`.
+
+
 
 ## Usage
 
@@ -74,7 +82,7 @@ example:
 python app.py --config configs/example_config.yaml --output output.html
 ```
 
-(3) The script will download the latest papers from the web and ask questions about them. The answers will be stored in a database named `papers.db`. Then a webpage will be generated with the papers and their answers. All papers are ranked by the relevance of the questions to the papers.
+(3) The script will download the latest papers from the web and analyse them using the predefined questions. The answers will be stored in a database named `papers.db`. Then a webpage will be generated with the papers and their answers. All papers are ranked by the relevance of the questions to the papers.
 
 
 ## Call for Contributions!

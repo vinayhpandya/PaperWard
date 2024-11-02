@@ -1,12 +1,12 @@
-name: LLM games
+name: LLM RAG
 
 queries:
-- content: LLM games
-  max result: 10 
-- content: LLM game
+- content: RAG in LLMs
+  max_results: 10
+- content: retrieval in Large Language Models
+  max_results: 10
 
 questions:
-- content: "How does the paper use LLMs to design the policy in computer games?"
-  answer type: "string"
-- content: "How does the paper use LLMs to create computer games?"
-  answer type: "string"
+- content: "What retrieval methods are used in this paper?"
+- content: "Does the retrieval method involve traditional IR techniques?"
+- content: "What scenarios are the retrieval methods used in?"

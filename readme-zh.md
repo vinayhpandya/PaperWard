@@ -30,7 +30,7 @@ PaperWard 会将论文信息翻译为您的首选语言**，让研究变得触�
 *目前仅支持 ArXiv 摘要。  
 **目前仅支持简体中文翻译。
 
-## 安装和要求
+## 安装要求
 
 该项目在 Windows 上的 Python 3.12 版本上运行良好。尚未在其他平台上进行测试。
 
@@ -38,7 +38,11 @@ PaperWard 会将论文信息翻译为您的首选语言**，让研究变得触�
 pip install arxiv requests lxml openai retrying PyYAML SQLAlchemy
 ```
 
-您需要获得 OpenAI 的 API 密钥来使用 PaperWard。您可以在 https://platform.openai.com/signup 注册获取 API 密钥。
+您需要获得 OpenAI 的 API 密钥来使用 PaperWard。您可以在 https://platform.openai.com/signup 注册获取 API 密钥。得到密钥后，您可以将其设置为环境变量 `OPENAI_API_KEY`。
+
+```bash
+export OPENAI_API_KEY=<您的密钥>
+```
 
 ## 使用方法
 
@@ -69,7 +73,7 @@ python app.py --config <path_to_config_file> --output <path_to_output_html> [--r
 python app.py --config configs/example_config.yaml --output output.html
 ```
 
-3. 脚本将从网上下载最新的论文并提问问题，答案将被存储在名为 `papers.db` 的数据库中。随后将生成一个包含论文及其答案的网页。所有论文将按问题与论文的相关性进行排序。
+3. 脚本将从网上下载最新的论文并回答问题，答案将被存储在名为 `papers.db` 的数据库中。随后将生成一个包含论文及其答案的网页。所有论文将按问题与论文的相关性进行排序。
 
 ## 欢迎贡献！
 
