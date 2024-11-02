@@ -57,4 +57,16 @@ if __name__ == '__main__':
     logging_level = logging.INFO
     logging.basicConfig(level=logging_level)
     logging.debug(f"Logging initialized at level {logging_level}")
-    main()
+    
+    # parse system arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--configs', type=str, default="configs/example_config.yaml",
+                        help='path to the yaml config file')
+    parser.add_argument('--output', type=str, default="output.html",
+                        help='path to the output html file')
+    parser.add_argument('--rpm', type=int, default=10,
+                        help='the rpm limit of the API')
+    args = parser.parse_args()
+
+    main(args.configs, args.output, args.rpm)

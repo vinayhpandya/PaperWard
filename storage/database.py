@@ -4,7 +4,7 @@ from utils.app_types import Base, Arxiv, DatabaseItem, BaseSearchResult, BaseAna
 from typing import List, Union, OrderedDict
 import logging
 
-engine = create_engine('sqlite:///arxiv.db')
+engine = create_engine('sqlite:///papers.db')
 Base.metadata.create_all(engine)
 
 

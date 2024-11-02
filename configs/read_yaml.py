@@ -15,6 +15,10 @@ def load_config(yaml_file_path: str) -> BaseConfigUnit:
 
     question_list = []
     for question_item in param["questions"]:
+        if "content" not in question_item:
+            raise ValueError("Question content is required in the config file")
+        if "answer type" not in question_item:
+            question_item["answer type"] = "string"
         question = BaseQuestion(question_item["content"], 
                                 question_item["answer type"])
         question_list.append(question)
