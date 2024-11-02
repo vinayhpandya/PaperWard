@@ -4,7 +4,7 @@ from analysis.rank_results import rank_results
 from configs.read_yaml import load_config
 from utils.app_types import DatabaseItem
 from visualization.write_html import write_html
-from storage.database import add_arxiv
+from storage.database import add_arxiv, get_arxiv
 import asyncio
 
 
@@ -19,7 +19,10 @@ def main(yaml_path: str = "configs/example_config.yaml",
     search_results = get_fusion_search_results(config.queries)
     logging.info(f"search results fetched")
 
-    # TODO: compare the search results with the database to avoid duplicate analysis
+    # compare the search results with the database to avoid duplicate analysis
+    local_database_items = get_arxiv([search_result.entry_id for search_result in search_results])
+    # only keeps the search results that are not in the database
+    search_results = [search_result for i, search_result in enumerate(search_results) if local_database_items[i] is None]
 
     # use LLMs to answer the questions in the search results
     # avoid breaking the rpm limit of the API
@@ -30,13 +33,15 @@ def main(yaml_path: str = "configs/example_config.yaml",
         analyse_results.extend(analyse_batch)
 
     # weave the analysis results with the search results
-    database_items = [DatabaseItem(search_result, analysis) for search_result, analysis in zip(search_results, analyse_results)]
+    new_database_items = [DatabaseItem(search_result, analysis) for search_result, analysis in zip(search_results, analyse_results)]
 
-    for i in database_items:
+    # add the new items to the database
+    for i in new_database_items:
         add_arxiv(i)
 
     # rank the analysis results
-    ranked_results = rank_results(database_items)
+    all_database_items = new_database_items + [i for i in local_database_items if i is not None]
+    ranked_results = rank_results(all_database_items)
     
     # write the results to an HTML file
     write_html(ranked_results, html_path)
