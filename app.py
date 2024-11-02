@@ -2,7 +2,7 @@ from search.fusion_search import get_fusion_search_results
 from analysis.base_process import batch_analysis
 from analysis.rank_results import rank_results
 from configs.read_yaml import load_config
-from utils.app_types import DatabaseItem
+from utils.app_types import PaperItem
 from visualization.write_html import write_html
 from storage.database import add_arxiv, get_arxiv
 import asyncio
@@ -33,7 +33,7 @@ def main(yaml_path: str = "configs/example_config.yaml",
         analyse_results.extend(analyse_batch)
 
     # weave the analysis results with the search results
-    new_database_items = [DatabaseItem(search_result, analysis) for search_result, analysis in zip(search_results, analyse_results)]
+    new_database_items = [PaperItem(search_result, analysis) for search_result, analysis in zip(search_results, analyse_results)]
 
     # add the new items to the database
     for i in new_database_items:

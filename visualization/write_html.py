@@ -1,6 +1,6 @@
 from typing import List, OrderedDict
 
-from utils.app_types import DatabaseItem, BaseSearchResult, BaseAnalysis, BaseQuestion, BaseAnswer
+from utils.app_types import PaperItem, BaseSearchResult, BaseAnalysis, BaseQuestion, BaseAnswer
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -21,12 +21,12 @@ HTML_TEMPLATE = """
 </html>
 """
 
-def write_html(database_items: List[DatabaseItem], html_path: str) -> None:
+def write_html(database_items: List[PaperItem], html_path: str) -> None:
     html_content = compose_html(database_items)
     with open(html_path, 'w', encoding='utf-8') as file:
         file.write(html_content)
 
-def compose_html(database_items: List[DatabaseItem]) -> str:
+def compose_html(database_items: List[PaperItem]) -> str:
     html_content = ""
     for db_item in database_items:
         document: BaseSearchResult = db_item.document

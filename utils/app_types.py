@@ -86,9 +86,10 @@ class BaseAnalysis:
         }
     
 @dataclass
-class DatabaseItem:
+class PaperItem:
     """
-    Information to be stored in the database.
+    Contains paper information and its analysis.
+    Used for front-end filtering+visualization and bridge to the database.
     the score field is used to rank the results
     """
     document: BaseSearchResult
@@ -101,7 +102,8 @@ class Base(DeclarativeBase):
     pass
 
 
-class Arxiv(MappedAsDataclass, Base):
+class PaperDBItem(MappedAsDataclass, Base):
+    """Used to store the paper information in the database"""
     __tablename__ = 'arxiv'
 
     arxiv_id: Mapped[str] = mapped_column(primary_key=True)

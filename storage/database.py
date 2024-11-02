@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from utils.app_types import Base, Arxiv, DatabaseItem, BaseSearchResult, BaseAnalysis, BaseQuestion, BaseAnswer
+from utils.app_types import Base, PaperDBItem, PaperItem, BaseSearchResult, BaseAnalysis, BaseQuestion, BaseAnswer
 from typing import List, Union, OrderedDict
 import logging
 
@@ -8,12 +8,12 @@ engine = create_engine('sqlite:///papers.db')
 Base.metadata.create_all(engine)
 
 
-def add_arxiv(database_item: DatabaseItem):
+def add_arxiv(database_item: PaperItem):
     document = database_item.document
     analysis = database_item.analysis
 
     with Session(engine) as session:
-        new_arxiv = Arxiv(
+        new_arxiv = PaperDBItem(
             arxiv_id=document.entry_id,
             title=document.title,
             summary=document.summary,
@@ -28,18 +28,18 @@ def add_arxiv(database_item: DatabaseItem):
         session.commit()
 
 
-def get_arxiv(arxiv_ids: List[str]) -> List[Union[DatabaseItem, None]]:
+def get_arxiv(arxiv_ids: List[str]) -> List[Union[PaperItem, None]]:
     """
     Get arxiv items from the database, if not found, return None
     """
     with Session(engine) as session:
         results = []
-        local_item_count = session.query(Arxiv).filter(Arxiv.arxiv_id.in_(arxiv_ids)).count()
+        local_item_count = session.query(PaperDBItem).filter(PaperDBItem.arxiv_id.in_(arxiv_ids)).count()
         logging.info(f"Found {local_item_count} out of {len(arxiv_ids)} items in the database")
         for arxiv_id in arxiv_ids:
-            arxiv = session.query(Arxiv).filter(Arxiv.arxiv_id == arxiv_id).first()
+            arxiv = session.query(PaperDBItem).filter(PaperDBItem.arxiv_id == arxiv_id).first()
             if arxiv:
-                item = DatabaseItem(
+                item = PaperItem(
                     document=BaseSearchResult(
                     entry_id=arxiv.arxiv_id,
                     title=arxiv.title,

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
-from utils.app_types import Base, Arxiv  # Adjust this import based on where your Arixv class is defined
+from utils.app_types import Base, PaperDBItem  # Adjust this import based on where your Arixv class is defined
 
 def load_all_arxiv_data():
     # Create engine
@@ -9,7 +9,7 @@ def load_all_arxiv_data():
     # Create a session
     with Session(engine) as session:
         # Create a select statement
-        stmt = select(Arxiv)
+        stmt = select(PaperDBItem)
 
         # Execute the query
         results = session.execute(stmt).scalars().all()
