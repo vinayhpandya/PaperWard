@@ -97,4 +97,4 @@ Apparently, the project is still at its early stages and has a lot of room for i
 
 - **Support for more question types**: Currently, PaperWard only supports simple questions. We would like to add support for more complex questions like multiple-choice questions, etc.
 
-- **More user-friendly interface**: Currently, PaperWard only generates an static HTML file as the report. We would like to add support for more interactive interfaces.
+- **More user-friendly interface**: Currently, PaperWard only generates a static HTML file as the report. We would like to add support for more interactive interfaces.
