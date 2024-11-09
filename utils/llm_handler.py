@@ -26,7 +26,7 @@ class Message:
 
     def raw(self) -> MessageDict:
         return {"role": self.role, "content": self.content}
-    
+
     @classmethod
     def from_json(cls, json_dict: dict):
         return cls(role=json_dict["role"], content=json_dict["content"])
@@ -46,10 +46,10 @@ class ChatSequence:
 
     def raw(self) -> list[dict]:
         return [message.raw() for message in self.messages]
-    
+
     def pop(self, i: int = -1):
         return self.messages.pop(i)
-    
+
     @classmethod
     def from_json(cls, json_list: list[dict]):
         return cls(messages=[Message.from_json(json_dict) for json_dict in json_list])
@@ -65,21 +65,26 @@ class LLMHandler:
     completion_token_usage = 0
     embedding_token_usage = 0
 
-    def __init__(self, llm_model: str = "gpt-4o", 
-                 record_messages: bool = False, 
-                 log_folder: str = 'llm_logs'):
+    def __init__(
+        self,
+        llm_model: str = "gpt-3.5-turbo",
+        record_messages: bool = False,
+        log_folder: str = "llm_logs",
+    ):
         self.llm_model = llm_model
         self.record_messages = record_messages
         self.log_folder = log_folder
-        self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"),)
-        
+        self.client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+        )
+
         # create the log folder if it doesn't exist
         if not os.path.exists(self.log_folder) and self.record_messages:
             os.makedirs(self.log_folder)
-        
 
-    def chat_with_gpt(self, messages: Union[ChatSequence, list[dict], str], 
-                      model=None, **kwargs) -> str:
+    def chat_with_gpt(
+        self, messages: Union[ChatSequence, list[dict], str], model=None, **kwargs
+    ) -> str:
         # if messages is a ChatSequence, convert it to a list of dicts
         if isinstance(messages, ChatSequence):
             messages = messages.raw()
@@ -96,12 +101,10 @@ class LLMHandler:
         if "gpt" in model:
             try:
                 response = self.client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    **kwargs
-                    )
+                    model=model, messages=messages, **kwargs
+                )
             except Exception as err:
-                logging.error(f'OPENAI ERROR: {err}')
+                logging.error(f"OPENAI ERROR: {err}")
                 raise err
 
             content = response.choices[0].message.content
@@ -117,7 +120,9 @@ class LLMHandler:
     def save_messages(self, messages: list[dict]):
         if not self.record_messages:
             return
-        with open(f"{self.log_folder}/{self.log_count}.txt", 'w', encoding='utf-8') as f:
+        with open(
+            f"{self.log_folder}/{self.log_count}.txt", "w", encoding="utf-8"
+        ) as f:
             for message in messages:
                 f.write(f'{message["role"]}: ')
                 f.write(f'{message["content"]}\n')
@@ -140,9 +145,6 @@ class LLMHandler:
         self.embedding_token_usage += response.usage.prompt_tokens
 
         return [r.embedding for r in response.data]
-    
+
     def get_text_embeddings(self, text: str) -> list[float]:
         return self.get_text_embeddings_multi([text])[0]
-
-
-

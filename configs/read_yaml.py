@@ -3,9 +3,8 @@ import yaml
 from utils.app_types import BaseQuestion, BaseQuery, BaseConfigUnit
 
 
-
 def load_config(yaml_file_path: str) -> BaseConfigUnit:
-    with open(yaml_file_path, 'r') as file:
+    with open(yaml_file_path, "r") as file:
         param = yaml.safe_load(file)
 
     query_list = []
@@ -19,12 +18,9 @@ def load_config(yaml_file_path: str) -> BaseConfigUnit:
             raise ValueError("Question content is required in the config file")
         if "answer type" not in question_item:
             question_item["answer type"] = "string"
-        question = BaseQuestion(question_item["content"], 
-                                question_item["answer type"])
+        question = BaseQuestion(question_item["content"], question_item["answer type"])
         question_list.append(question)
 
     return BaseConfigUnit(
-        name=param["name"],
-        queries=query_list,
-        questions=question_list
+        name=param["name"], queries=query_list, questions=question_list
     )
