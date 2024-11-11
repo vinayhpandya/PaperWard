@@ -49,40 +49,21 @@ export OPENAI_API_KEY=<your_openai_api_key>
 
 PaperWard uses `gpt-4o` as the default LLM model. You can change it by modifying the source code in `utils/llm_handler.py`.
 
+Initiate Streamlit by running the following command:
 
+```bash
+streamlit hello
+```
 
 ## Usage
 
-(1) Create a config file following the template below. The `queries` field should contain a list of search keywords that you want to track. The `questions` field should contain a list of questions that you want to ask about the papers. `configs/example_config.yaml` is an example of a config file.
-
-```yaml
-name: LLM academic agents
-
-queries:
-- content: LLM academic research agent
-  max_results: 10
-- content: LLM academic writing
-  max_results: 10
-
-questions:
-- content: "How does the paper use LLMs to optimize academic research?"
-- content: "What fields of research does the paper focus on?"
-- content: "What stages of academic research does the paper focus on?"
-```
-
-(2) Run the script with the following command:
+Start the app with the following command:
 
 ```bash
-python app.py --config <path_to_config_file> --output <path_to_output_html> [--rpm <requests_per_minute>]
+streamlit run app.py
 ```
 
-example:
-
-```bash
-python app.py --config configs/example_config.yaml --output output.html
-```
-
-(3) The script will download the latest papers from the web and analyse them using the predefined questions. The answers will be stored in a database named `papers.db`. Then a webpage will be generated with the papers and their answers. All papers are ranked by the relevance of the questions to the papers.
+Responding to your query, the app will download the latest papers from the web and analyse them using the user-defined questions. The answers will be stored in a database named `papers.db`. Then the papers and their answers will be displayed in the app. All papers are ranked by the relevance of the questions to the papers.
 
 
 ## Call for Contributions!
