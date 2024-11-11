@@ -13,32 +13,72 @@ import yaml
 # Streamlit Configuration
 st.set_page_config(page_title="Research Paper Search App", layout="wide")
 
+# Initialize session state for questions if not exists
+if 'questions' not in st.session_state:
+    st.session_state.questions = [
+        "What retrieval methods are used in this paper?",
+        "Does the retrieval method involve traditional IR techniques?",
+        "What scenarios are the retrieval methods used in?"
+    ]
+
 # Streamlit UI Components
-st.title("Research Paper Search Application")
+st.title("PaperWard: Research Paper Search Application")
 
 # User input for search
-query = st.text_input("Enter your search query:")
+st.subheader("Search Query")
+query = st.text_input(value="Information Retrieval", label="Enter your search query:")
 
 # Source selection
-st.subheader("Select Search Sources")
+st.subheader("Search Sources")
 col1, col2 = st.columns(2)
 with col1:
     use_arxiv = st.checkbox("arXiv", value=True)
 with col2:
     use_pubmed = st.checkbox("PubMed", value=False)
 
+# Questions Management Section
+st.subheader("Analysis Questions")
+
+# Function to add a new question
+def add_question():
+    st.session_state.questions.append("")
+
+# Function to delete a question
+def delete_question(index):
+    st.session_state.questions.pop(index)
+
+# Display existing questions with delete buttons
+updated_questions = []
+for i, question in enumerate(st.session_state.questions):
+    col1, col2 = st.columns([6, 1])
+    with col1:
+        updated_question = st.text_input(f"Question {i+1}", value=question, key=f"q_{i}")
+        updated_questions.append(updated_question)
+    with col2:
+        if st.button("Delete", key=f"del_{i}"):
+            delete_question(i)
+            st.rerun()
+
+# Add new question button
+if st.button("Add Question"):
+    add_question()
+    st.rerun()
+
+# Update session state with modified questions
+st.session_state.questions = updated_questions
+
 # Validate at least one source is selected
 if not (use_arxiv or use_pubmed):
     st.warning("Please select at least one search source.")
 
 # Rate limit selection
+st.subheader("Options")
 rpm_limit = st.slider(
     "Rate Limit (Requests per Minute)", min_value=1, max_value=50, value=10
 )
 
 # Placeholder for the search results
 results_placeholder = st.empty()
-
 
 # Function to handle the main logic of the search
 def main(query, rpm_limit, sources):
@@ -47,11 +87,7 @@ def main(query, rpm_limit, sources):
         "name": "LLM RAG",
         "sources": sources,
         "queries": [{"content": query, "max_results": 5}],
-        "questions": [
-            {"content": "What retrieval methods are used in this paper?"},
-            {"content": "Does the retrieval method involve traditional IR techniques?"},
-            {"content": "What scenarios are the retrieval methods used in?"},
-        ],
+        "questions": [{"content": q} for q in st.session_state.questions if q.strip()],  # Filter out empty questions
     }
     logging.info(f"Config created with query: {query}")
 
@@ -96,11 +132,12 @@ def main(query, rpm_limit, sources):
 
     return ranked_results
 
-
 # Trigger search on button click
 if st.button("Search") and query:
     if not (use_arxiv or use_pubmed):
         st.error("Please select at least one search source before searching.")
+    elif not any(q.strip() for q in st.session_state.questions):
+        st.error("Please add at least one question for analysis.")
     else:
         # Create list of selected sources
         selected_sources = []

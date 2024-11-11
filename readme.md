@@ -89,7 +89,7 @@ python app.py --config configs/example_config.yaml --output output.html
 
 Apparently, the project is still at its early stages and has a lot of room for improvement. We welcome contributions from the community to make PaperWard more powerful and user-friendly. Here are some of the areas where you can contribute:
 
-- **Support for more websites**: Currently, PaperWard only supports ArXiv. We would like to add support for more websites like PubMed, IEEE Xplore, etc.
+- **Support for more websites**: Currently, PaperWard only supports ArXiv and PubMed. We would like to add support for more websites like Semantic Scholar, IEEE Xplore, etc.
 
 - **Support for more languages**: Currently, PaperWard only supports simplified Chinese. We would like to add support for more languages.
 
