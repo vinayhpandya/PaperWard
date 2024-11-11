@@ -38,7 +38,7 @@ Break the language barrier! PaperWard translates paper information into your pre
 ## Installation and Requirements
 This project runs well on Python 3.12 on Windows. We have not tested it on other platforms.
 ```
-pip install arxiv requests lxml openai retrying PyYAML SQLAlchemy
+pip install arxiv requests lxml openai retrying PyYAML SQLAlchemy pymed streamlit
 ```
 
 You need to get an OpenAI API key to use PaperWard. You can sign up for an API key at https://platform.openai.com/signup. Once you have the key, you can set it as an environment variable `OPENAI_API_KEY`.

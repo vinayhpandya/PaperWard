@@ -1,4 +1,4 @@
-from typing import List, OrderedDict
+from typing import List, OrderedDict, Union
 from retrying import retry
 import json
 import asyncio
@@ -54,7 +54,11 @@ def question_format(questions: List[BaseQuestion]) -> str:
 @retry(stop_max_attempt_number=5)
 def single_analysis(
     result: BaseSearchResult, questions: List[BaseQuestion]
-) -> BaseAnalysis:
+) -> Union[BaseAnalysis, None]:
+    """
+    Analyze a single paper with multiple questions and answers
+    If the analysis fails, retry up to 5 times, after which it will return None
+    """
     # logging.info(f"Analyzing {result.title}")
     question_str = question_format(questions)
     prompt = (
@@ -70,7 +74,7 @@ def single_analysis(
         response = json.loads(json_text.encode("utf-8"))
     except json.JSONDecodeError as e:
         logging.error(f"Failed to decode JSON: {json_text} \n {e}")
-        raise ValueError(f"Failed to decode JSON: {json_text}")
+        return None
 
     question_dict = OrderedDict()
     total_score = 0

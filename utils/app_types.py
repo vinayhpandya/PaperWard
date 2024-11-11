@@ -5,6 +5,7 @@ from typing import List, Union, OrderedDict, Literal
 from dataclasses import dataclass
 from datetime import datetime
 
+SearchSource = Literal['arxiv', 'pubmed']
 
 @dataclass
 class BaseSearchResult:
