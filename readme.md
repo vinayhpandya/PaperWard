@@ -70,12 +70,17 @@ Responding to your query, the app will download the latest papers from the web a
 
 Apparently, the project is still at its early stages and has a lot of room for improvement. We welcome contributions from the community to make PaperWard more powerful and user-friendly. Here are some of the areas where you can contribute:
 
-- **Support for more websites**: Currently, PaperWard only supports ArXiv and PubMed. We would like to add support for more websites like Semantic Scholar, IEEE Xplore, etc.
+What we have done:
+- [X] Search in ArXiv
+- [x] Search in PubMed, thanks to [Vinay Pandya](https://github.com/vinayhpandya)!
+- [X] Analyse using OpenAI GPT 4o
+- [X] Analyse using Gemini 1.5 Flash, with suggestions from [MartialTerran](https://github.com/MartialTerran)!
+- [X] Enable a streamlit UI, thanks to [Vinay Pandya](https://github.com/vinayhpandya)!
 
-- **Support for more languages**: Currently, PaperWard only supports simplified Chinese. We would like to add support for more languages.
-
-- **Support for dynamic question update**: Currently, if you change the questions in the config file, previously-fetched papers will not be re-analyzed. We would like to add support for dynamic question updates.
-
-- **Support for more question types**: Currently, PaperWard only supports simple questions. We would like to add support for more complex questions like multiple-choice questions, etc.
-
-- **More user-friendly interface**: Currently, PaperWard only generates a static HTML file as the report. We would like to add support for more interactive interfaces.
+Todos:
+- [ ] Search in Semantic Scholar
+- [ ] Search in IEEE Xplore
+- [ ] **More languages**: Currently, PaperWard only supports simplified Chinese. We would like to add support for more languages.
+- [ ] **Dynamic question update**: Currently, if you change the questions in the config file, previously-fetched papers will not be re-analyzed. We would like to add support for dynamic question updates.
+- [ ] **More question types**: Currently, PaperWard only supports simple questions. We would like to add support for more complex questions like multiple-choice questions, etc.
+- [ ] **More user-friendly interface**: Currently, PaperWard only generates a static HTML file as the report. We would like to add support for more interactive interfaces.
