@@ -4,6 +4,7 @@ import json
 import asyncio
 import re
 import logging
+from time import time
 
 from utils.llm_handler import LLMHandler
 from utils.app_types import BaseSearchResult, BaseQuestion, BaseAnswer, BaseAnalysis
@@ -53,7 +54,9 @@ def question_format(questions: List[BaseQuestion]) -> str:
 
 @retry(stop_max_attempt_number=5)
 def single_analysis(
-    result: BaseSearchResult, questions: List[BaseQuestion]
+    result: BaseSearchResult, 
+    questions: List[BaseQuestion],
+    config: dict
 ) -> Union[BaseAnalysis, None]:
     """
     Analyze a single paper with multiple questions and answers
@@ -66,7 +69,7 @@ def single_analysis(
         .replace("{title}", result.title)
         .replace("{summary}", result.summary)
     )
-    llm_handler = LLMHandler()
+    llm_handler = LLMHandler(llm_model=config["rough_llm"], api_key=config["rough_api_key"])
     response = llm_handler.chat_with_gpt(prompt)
     json_text = re.findall(r"```json(.*)```", response, re.DOTALL)[-1]
     try:
@@ -95,14 +98,31 @@ def single_analysis(
 
 
 async def single_analysis_wrapper(
-    result: BaseSearchResult, questions: List[BaseQuestion]
+    result: BaseSearchResult, 
+    questions: List[BaseQuestion],
+    config: dict
 ) -> BaseAnalysis:
-    return await asyncio.to_thread(single_analysis, result, questions)
+    return await asyncio.to_thread(single_analysis, result, questions, config)
 
 
 async def batch_analysis(
-    results: List[BaseSearchResult], questions: List[BaseQuestion]
+    results: List[BaseSearchResult], 
+    questions: List[BaseQuestion],
+    config: dict
 ) -> List[BaseAnalysis]:
-    tasks = [single_analysis_wrapper(result, questions) for result in results]
+    """
+    Analyze a batch of papers concurrently.
+    Note: This function will wait for at least 1 minute before returning to avoid rate limiting.
+    """
+    start_time = time()
+    
+    # Run the analysis tasks concurrently
+    tasks = [single_analysis_wrapper(result, questions, config) for result in results]
     analysis_results = await asyncio.gather(*tasks)
+    
+    # Ensure at least 1 minute has passed
+    elapsed_time = time() - start_time
+    if elapsed_time < 60:
+        await asyncio.sleep(60 - elapsed_time)
+    
     return analysis_results

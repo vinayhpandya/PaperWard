@@ -11,7 +11,7 @@ import logging
 import yaml
 
 # Streamlit Configuration
-st.set_page_config(page_title="Research Paper Search App", layout="wide")
+st.set_page_config(page_title="Research Paper Search App")
 
 # Initialize session state for questions if not exists
 if 'questions' not in st.session_state:
@@ -74,7 +74,22 @@ if not (use_arxiv or use_pubmed):
 # Rate limit selection
 st.subheader("Options")
 rpm_limit = st.slider(
-    "Rate Limit (Requests per Minute)", min_value=1, max_value=50, value=10
+    "Rate Limit (Requests per Minute)", min_value=1, max_value=50, value=8,
+    help="Rate limits may vary based on your plan and the selected LLM model. Usually, free-tier plans have a lower limit."
+)
+
+# LLM choice selection
+rough_llm_choice = st.selectbox(
+    "Select the LLM Model for rough analysis:",
+    options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gemini-1.5-flash"],
+    index=3
+)
+
+# API key input field
+rough_api_key = st.text_input(
+    "Enter your API Key:",
+    type="password",  # Masks the input for security
+    help="Input your API key for accessing the selected LLM model. Please provide a valid API key if you did not configure your environment variables."
 )
 
 # Placeholder for the search results
@@ -88,6 +103,8 @@ def main(query, rpm_limit, sources):
         "sources": sources,
         "queries": [{"content": query, "max_results": 5}],
         "questions": [{"content": q} for q in st.session_state.questions if q.strip()],  # Filter out empty questions
+        "rough_llm": rough_llm_choice,
+        "rough_api_key": rough_api_key
     }
     logging.info(f"Config created with query: {query}")
 
@@ -110,7 +127,7 @@ def main(query, rpm_limit, sources):
     for i in range(0, len(search_results), rpm_limit):
         logging.info(f"Analysing search item {i} to {i + rpm_limit}")
         analyse_batch = asyncio.run(
-            batch_analysis(search_results[i : i + rpm_limit], config["questions"])
+            batch_analysis(search_results[i : i + rpm_limit], config["questions"], config)
         )
         analyse_results.extend(analyse_batch)
 
@@ -160,6 +177,7 @@ if st.button("Search") and query:
                     st.write(f"**Score:** {analysis.score} pts")
                     st.write(f"**Updated Time:** {document.updated_time}")
                     st.write(f"**Read Status:** {result.read}")
+                    st.write(f"**Link:** {document.entry_id}")
                     st.write(f"**Summary:** {document.summary}")
                     st.write(f"**Translated Summary:** {analysis.chs_summary}")
                     st.write("**Q&A:**")

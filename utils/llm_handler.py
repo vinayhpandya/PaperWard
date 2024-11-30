@@ -56,10 +56,24 @@ class ChatSequence:
 
 
 class LLMHandler:
-    llm_model = None
-    record_messages = False
-    record_file = None
-    client = None
+    def __init__(
+        self,
+        llm_model: str = "gpt-3.5-turbo",
+        api_key: str = None,
+        log_folder: str = None,
+    ):
+        if "gpt" in llm_model:
+            self.llm_handler = GPTHandler(llm_model, api_key, log_folder)
+        elif "gemini" in llm_model:
+            self.llm_handler = GeminiHandler(llm_model, api_key, log_folder)
+        else:
+            raise ValueError("Invalid LLM model")
+        
+    def chat_with_gpt(self, messages: Union[ChatSequence, list[dict], str], **kwargs) -> str:
+        return self.llm_handler.chat(messages, **kwargs)
+    
+
+class BaseLLMHandler:
     log_count = 0
     prompt_token_usage = 0
     completion_token_usage = 0
@@ -68,22 +82,19 @@ class LLMHandler:
     def __init__(
         self,
         llm_model: str = "gpt-3.5-turbo",
-        record_messages: bool = False,
-        log_folder: str = "llm_logs",
+        api_key: str = None,
+        log_folder: str = None,
     ):
         self.llm_model = llm_model
-        self.record_messages = record_messages
         self.log_folder = log_folder
-        self.client = OpenAI(
-            api_key=os.environ.get("OPENAI_API_KEY"),
-        )
 
         # create the log folder if it doesn't exist
-        if not os.path.exists(self.log_folder) and self.record_messages:
-            os.makedirs(self.log_folder)
+        if log_folder:
+            if not os.path.exists(self.log_folder):
+                os.makedirs(self.log_folder)
 
-    def chat_with_gpt(
-        self, messages: Union[ChatSequence, list[dict], str], model=None, **kwargs
+    def chat(
+        self, messages: Union[ChatSequence, list[dict], str], **kwargs
     ) -> str:
         # if messages is a ChatSequence, convert it to a list of dicts
         if isinstance(messages, ChatSequence):
@@ -92,33 +103,20 @@ class LLMHandler:
         if isinstance(messages, str):
             messages = [{"role": "user", "content": messages}]
 
-        if model is None:
-            model = self.llm_model
-
         # save the messages to a file
         self.save_messages(messages)
 
-        if "gpt" in model:
-            try:
-                response = self.client.chat.completions.create(
-                    model=model, messages=messages, **kwargs
-                )
-            except Exception as err:
-                logging.error(f"OPENAI ERROR: {err}")
-                raise err
-
-            content = response.choices[0].message.content
-            self.prompt_token_usage += response.usage.prompt_tokens
-            self.completion_token_usage += response.usage.completion_tokens
-
-        else:
-            raise ValueError(f"Model {model} not supported")
+        # connect to APIs
+        content = self.connect_to_api(messages, **kwargs)
 
         self.save_messages([{"role": "assistant", "content": content}])
         return content
+    
+    def connect_to_api(self, messages: list[dict], **kwargs):
+        raise NotImplementedError
 
     def save_messages(self, messages: list[dict]):
-        if not self.record_messages:
+        if not self.log_folder:
             return
         with open(
             f"{self.log_folder}/{self.log_count}.txt", "w", encoding="utf-8"
@@ -128,23 +126,65 @@ class LLMHandler:
                 f.write(f'{message["content"]}\n')
         self.log_count += 1
 
-    def get_text_embeddings_multi(self, texts: list[str]) -> list[list[float]]:
-        """
-        Get the text embeddings from the OpenAI API.
-        """
-        # assert the input is a list of strings
-        assert all(isinstance(text, str) for text in texts)
 
-        client = self.client
+class GPTHandler(BaseLLMHandler):
+    def __init__(
+            self, 
+            llm_model: str = "gpt-3.5-turbo", 
+            api_key: str = None, 
+            log_folder: str = None
+            ):
+        super().__init__(llm_model, api_key, log_folder)
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-        response = client.embeddings.create(
-            input=texts,
-            model="text-embedding-3-small",
-        )
+    def connect_to_api(self, messages: list[dict], **kwargs):
+        try:
+            response = self.client.chat.completions.create(
+                model=self.llm_model, messages=messages, **kwargs
+            )
+        except Exception as err:
+            logging.error(f"OPENAI ERROR: {err}")
+            raise err
 
-        self.embedding_token_usage += response.usage.prompt_tokens
+        content = response.choices[0].message.content
+        self.prompt_token_usage += response.usage.prompt_tokens
+        self.completion_token_usage += response.usage.completion_tokens
+        return content
+    
 
-        return [r.embedding for r in response.data]
+class GeminiHandler(BaseLLMHandler):
+    def __init__(
+            self, 
+            llm_model: str = "gemini-1.5-flash", 
+            api_key: str = None, 
+            log_folder: str = None
+            ):
+        super().__init__(llm_model, api_key, log_folder)
+        if api_key:
+            self.client = OpenAI(api_key=api_key, base_url="https://generativelanguage.googleapis.com/v1beta/")
+        else:
+            self.client = OpenAI(api_key=os.environ.get("GEMINI_API_KEY"), base_url="https://generativelanguage.googleapis.com/v1beta/")
 
-    def get_text_embeddings(self, text: str) -> list[float]:
-        return self.get_text_embeddings_multi([text])[0]
+    def connect_to_api(self, messages: list[dict], **kwargs):
+        try:
+            response = self.client.chat.completions.create(
+                model=self.llm_model, messages=messages, **kwargs
+            )
+        except Exception as err:
+            logging.error(f"GOOGLE ERROR: {err}")
+            raise err
+        content = response.choices[0].message.content
+        return content
+
+
+# Example usage
+if __name__ == "__main__":
+    llm_handler = LLMHandler(llm_model="gemini-1.5-flash")
+    messages = ChatSequence()
+    messages.append(Message("user", "Hello!"))
+
+    response = llm_handler.chat_with_gpt(messages)
+    print(response)
