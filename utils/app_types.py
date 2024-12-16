@@ -76,7 +76,7 @@ class BaseAnalysis:
     score: int
 
     def __str__(self) -> str:
-        return f"{self.chs_title}: {self.chs_summary}\n{"\n".join([f'{q}: {a}' for q, a in self.qa.items()])}"
+        return f"{self.chs_title}: {self.chs_summary}\n" + "\n".join([f"{q}: {a}" for q, a in self.qa.items()])
 
     def __dict__(self) -> dict:
         return {
