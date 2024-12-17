@@ -8,3 +8,4 @@ SQLAlchemy
 pymed
 streamlit
 plotly
+semanticscholar

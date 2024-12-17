@@ -14,11 +14,11 @@ import yaml
 st.set_page_config(page_title="Research Paper Search App")
 
 # Initialize session state for questions if not exists
-if 'questions' not in st.session_state:
+if "questions" not in st.session_state:
     st.session_state.questions = [
         "What retrieval methods are used in this paper?",
         "Does the retrieval method involve traditional IR techniques?",
-        "What scenarios are the retrieval methods used in?"
+        "What scenarios are the retrieval methods used in?",
     ]
 
 # Streamlit UI Components
@@ -30,29 +30,36 @@ query = st.text_input(value="Information Retrieval", label="Enter your search qu
 
 # Source selection
 st.subheader("Search Sources")
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
     use_arxiv = st.checkbox("arXiv", value=True)
 with col2:
     use_pubmed = st.checkbox("PubMed", value=False)
+with col3:
+    use_semantic = st.checkbox("Semantic Scholar", value=False)
 
 # Questions Management Section
 st.subheader("Analysis Questions")
+
 
 # Function to add a new question
 def add_question():
     st.session_state.questions.append("")
 
+
 # Function to delete a question
 def delete_question(index):
     st.session_state.questions.pop(index)
+
 
 # Display existing questions with delete buttons
 updated_questions = []
 for i, question in enumerate(st.session_state.questions):
     col1, col2 = st.columns([6, 1])
     with col1:
-        updated_question = st.text_input(f"Question {i+1}", value=question, key=f"q_{i}")
+        updated_question = st.text_input(
+            f"Question {i+1}", value=question, key=f"q_{i}"
+        )
         updated_questions.append(updated_question)
     with col2:
         if st.button("Delete", key=f"del_{i}"):
@@ -68,32 +75,36 @@ if st.button("Add Question"):
 st.session_state.questions = updated_questions
 
 # Validate at least one source is selected
-if not (use_arxiv or use_pubmed):
+if not (use_arxiv or use_pubmed or use_semantic):
     st.warning("Please select at least one search source.")
 
 # Rate limit selection
 st.subheader("Options")
 rpm_limit = st.slider(
-    "Rate Limit (Requests per Minute)", min_value=1, max_value=50, value=8,
-    help="Rate limits may vary based on your plan and the selected LLM model. Usually, free-tier plans have a lower limit."
+    "Rate Limit (Requests per Minute)",
+    min_value=1,
+    max_value=50,
+    value=8,
+    help="Rate limits may vary based on your plan and the selected LLM model. Usually, free-tier plans have a lower limit.",
 )
 
 # LLM choice selection
 rough_llm_choice = st.selectbox(
     "Select the LLM Model for rough analysis:",
     options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gemini-1.5-flash"],
-    index=3
+    index=3,
 )
 
 # API key input field
 rough_api_key = st.text_input(
     "Enter your API Key:",
     type="password",  # Masks the input for security
-    help="Input your API key for accessing the selected LLM model. Please provide a valid API key if you did not configure your environment variables."
+    help="Input your API key for accessing the selected LLM model. Please provide a valid API key if you did not configure your environment variables.",
 )
 
 # Placeholder for the search results
 results_placeholder = st.empty()
+
 
 # Function to handle the main logic of the search
 def main(query, rpm_limit, sources):
@@ -102,9 +113,11 @@ def main(query, rpm_limit, sources):
         "name": "LLM RAG",
         "sources": sources,
         "queries": [{"content": query, "max_results": 5}],
-        "questions": [{"content": q} for q in st.session_state.questions if q.strip()],  # Filter out empty questions
+        "questions": [
+            {"content": q} for q in st.session_state.questions if q.strip()
+        ],  # Filter out empty questions
         "rough_llm": rough_llm_choice,
-        "rough_api_key": rough_api_key
+        "rough_api_key": rough_api_key,
     }
     logging.info(f"Config created with query: {query}")
 
@@ -127,14 +140,17 @@ def main(query, rpm_limit, sources):
     for i in range(0, len(search_results), rpm_limit):
         logging.info(f"Analysing search item {i} to {i + rpm_limit}")
         analyse_batch = asyncio.run(
-            batch_analysis(search_results[i : i + rpm_limit], config["questions"], config)
+            batch_analysis(
+                search_results[i : i + rpm_limit], config["questions"], config
+            )
         )
         analyse_results.extend(analyse_batch)
 
     # Create new database items, excluding the ones that failed analysis
     new_database_items = [
         PaperItem(search_result, analysis)
-        for search_result, analysis in zip(search_results, analyse_results) if analysis
+        for search_result, analysis in zip(search_results, analyse_results)
+        if analysis
     ]
 
     # Add the new items to the database
@@ -149,9 +165,10 @@ def main(query, rpm_limit, sources):
 
     return ranked_results
 
+
 # Trigger search on button click
 if st.button("Search") and query:
-    if not (use_arxiv or use_pubmed):
+    if not (use_arxiv or use_pubmed or use_semantic):
         st.error("Please select at least one search source before searching.")
     elif not any(q.strip() for q in st.session_state.questions):
         st.error("Please add at least one question for analysis.")
@@ -162,9 +179,13 @@ if st.button("Search") and query:
             selected_sources.append("arxiv")
         if use_pubmed:
             selected_sources.append("pubmed")
+        if use_semantic:
+            selected_sources.append("semantic")
 
         with st.spinner("Fetching and analyzing search results..."):
-            print(f"Fetching and analyzing search results from sources: {selected_sources}")
+            print(
+                f"Fetching and analyzing search results from sources: {selected_sources}"
+            )
             # Get the ranked results
             ranked_results = main(query, rpm_limit, selected_sources)
 
